@@ -47,7 +47,7 @@ func (f FourierImage) ApplyMatrixMask(mask *dsputils.Matrix) (*FourierImage, err
 
 			// Multiply the value at this pixel by a factor from 0-1, depending on
 			// the mask's amplitude compared to the max possible amplitude
-			product := v * complex((real(maskV)/MaxUint), (real(maskV)/MaxUint))
+			product := v * complex((real(maskV)/MaxUint), 0)
 
 			m.SetValue(product, []int{y, x})
 		}
