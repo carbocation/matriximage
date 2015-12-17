@@ -36,7 +36,7 @@ func toImage(matrix *dsputils.Matrix, whichPart int) *Image {
 	vals := matrix.To2D()
 	dims := matrix.Dimensions()
 
-	m := image.NewGray(image.Rect(0, 0, dims[1], dims[0]))
+	m := image.NewGray16(image.Rect(0, 0, dims[1], dims[0]))
 
 	// Determine a scale factor
 	maxAmp := 0.0
@@ -86,22 +86,22 @@ func toImage(matrix *dsputils.Matrix, whichPart int) *Image {
 
 			} else if whichPart == Phase {
 				offset := 0.0 - minPhase
-				scale := float64(math.MaxUint8) / (maxPhase - minPhase)
+				scale := float64(MaxUint) / (maxPhase - minPhase)
 
 				// Shift to get centered coordinates
 				part = (offset + cmplx.Phase(vals[shiftedY][shiftedX])) * scale //* 1.0 / math.Pi //* float64(dims[1]*dims[0])
 
 			}
 
-			if part > float64(math.MaxUint8) {
-				part = math.MaxUint8
+			if part > float64(MaxUint) {
+				part = MaxUint
 			} else if part < 0 {
 				part = 0
 			}
 
-			v := uint8(part)
+			v := uint16(part)
 
-			m.SetGray(x, y, color.Gray{v})
+			m.SetGray16(x, y, color.Gray16{v})
 		}
 	}
 

@@ -6,11 +6,14 @@ import (
 	_ "image/gif"
 	_ "image/jpeg"
 	"image/png"
+	"math"
 	"os"
 
 	"github.com/mjibson/go-dsp/dsputils"
 	"github.com/mjibson/go-dsp/fft"
 )
+
+const MaxUint = math.MaxUint16
 
 type Image struct {
 	image.Image
@@ -34,7 +37,7 @@ func (m Image) toGrayMatrix() *dsputils.Matrix {
 	for i := 0; i < lenX; i++ {
 		for j := 0; j < lenY; j++ {
 
-			v := scale * float64(m.Image.(*image.Gray).GrayAt(i+min.X, j+min.Y).Y)
+			v := scale * float64(m.Image.(*image.Gray16).Gray16At(i+min.X, j+min.Y).Y)
 
 			matrix.SetValue(complex(v, 0), []int{j, i})
 		}
@@ -67,13 +70,13 @@ func FromFile(filename string) (*Image, error) {
 	return &Image{Image: grayImage}, nil
 }
 
-func imageToGray(m image.Image) *image.Gray {
+func imageToGray(m image.Image) *image.Gray16 {
 	b := m.Bounds()
-	gray := image.NewGray(b)
+	gray := image.NewGray16(b)
 
 	for y := b.Min.Y; y < b.Max.Y; y++ {
 		for x := b.Min.X; x < b.Max.X; x++ {
-			gray.SetGray(x, y, color.GrayModel.Convert(m.At(x, y)).(color.Gray))
+			gray.SetGray16(x, y, color.Gray16Model.Convert(m.At(x, y)).(color.Gray16))
 		}
 	}
 	return gray

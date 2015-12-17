@@ -2,14 +2,13 @@ package matriximage
 
 import (
 	"fmt"
-	"math"
 	"os"
 	"testing"
 
 	"github.com/mjibson/go-dsp/dsputils"
 )
 
-const Case = "rand"
+const Case = "sin"
 
 func TestMask(t *testing.T) {
 	m, err := FromFile(fmt.Sprintf("./images/%s.gif", Case))
@@ -25,12 +24,12 @@ func TestMask(t *testing.T) {
 	// Create a square mask, where only the middle part of the amplitude is recovered.
 	for y := 0; y < dims[0]; y++ {
 		for x := 0; x < dims[1]; x++ {
-			//if y < 62*dims[0]/128 || x < 62*dims[1]/128 || y > 65*dims[0]/128 || x > 65*dims[1]/128 {
-			if (y >= dims[0]/2-2 && y <= dims[0]/2+2) && (x >= dims[1]/2-2 && x <= 1+dims[1]/2+2) {
-				fmt.Println(y, x)
+			rad := 1
+			//if (y >= dims[0]/2-rad && y <= dims[0]/2+rad) && (x >= dims[1]/2-rad && x <= 1+dims[1]/2+rad) {
+			if (y < dims[0]/2-rad || y > dims[0]/2+rad) || (x < dims[1]/2-rad || x > 1+dims[1]/2+rad) {
 				maskMatrix.SetValue(complex(0, 0), []int{y, x})
 			} else {
-				maskMatrix.SetValue(complex(float64(math.MaxUint8), 0), []int{y, x})
+				maskMatrix.SetValue(complex(float64(MaxUint), 0), []int{y, x})
 			}
 		}
 	}
@@ -42,6 +41,7 @@ func TestMask(t *testing.T) {
 
 	testSave(*maskedFourier.AmplitudeImage(), "masked-amplitude")
 	testSave(*maskedFourier.BrighterAmplitudeImage(), "masked-brighter-amplitude")
+	testSave(*maskedFourier.PhaseImage(), "masked-phase")
 	testSave(*maskedFourier.IDFTImage(), "masked-recovered")
 }
 
