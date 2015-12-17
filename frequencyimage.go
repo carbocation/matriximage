@@ -15,7 +15,7 @@ type FourierImage struct {
 // The mask is assumed to have its frequency origin at the center, which
 // is shifted by N/2 and M/2 from the top left origin
 func (f FourierImage) ApplyImageMask(img *Image) (*FourierImage, error) {
-	mask := img.toGrayMatrix()
+	mask := img.ToGrayMatrix()
 
 	return f.ApplyMatrixMask(mask)
 }
@@ -47,7 +47,7 @@ func (f FourierImage) ApplyMatrixMask(mask *dsputils.Matrix) (*FourierImage, err
 
 			// Multiply the value at this pixel by a factor from 0-1, depending on
 			// the mask's amplitude compared to the max possible amplitude
-			product := v * complex((real(maskV)/MaxUint), 0)
+			product := v * complex((real(maskV)/MaxUint), (real(maskV)/MaxUint))
 
 			m.SetValue(product, []int{y, x})
 		}
