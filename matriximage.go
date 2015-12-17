@@ -6,7 +6,6 @@ import (
 	_ "image/gif"
 	_ "image/jpeg"
 	"image/png"
-	//"math"
 	"os"
 
 	"github.com/mjibson/go-dsp/dsputils"
@@ -22,8 +21,8 @@ func (m Image) FFT() FrequencyImage {
 	fftn := m.fftn()
 
 	fi := FrequencyImage{
-		Real:   toRealImage(fftn),
-		Imag:   toImaginaryImage(fftn),
+		Amp:    toAmplitudeImage(fftn),
+		Phase:  toPhaseImage(fftn),
 		matrix: fftn,
 	}
 
@@ -44,7 +43,7 @@ func (m Image) toGrayMatrix() *dsputils.Matrix {
 	for i := 0; i < lenX; i++ {
 		for j := 0; j < lenY; j++ {
 
-			v := scale * float64(m.Image.(*image.Gray16).Gray16At(i+min.X, j+min.Y).Y)
+			v := scale * float64(m.Image.(*image.Gray).GrayAt(i+min.X, j+min.Y).Y)
 
 			matrix.SetValue(complex(v, 0), []int{j, i})
 		}
@@ -72,18 +71,18 @@ func FromFile(filename string) (*Image, error) {
 		return nil, err
 	}
 
-	grayImage := imageToGray16(src)
+	grayImage := imageToGray(src)
 
 	return &Image{grayImage}, nil
 }
 
-func imageToGray16(m image.Image) *image.Gray16 {
+func imageToGray(m image.Image) *image.Gray {
 	b := m.Bounds()
-	gray := image.NewGray16(b)
+	gray := image.NewGray(b)
 
 	for y := b.Min.Y; y < b.Max.Y; y++ {
 		for x := b.Min.X; x < b.Max.X; x++ {
-			gray.SetGray16(x, y, color.Gray16Model.Convert(m.At(x, y)).(color.Gray16))
+			gray.SetGray(x, y, color.GrayModel.Convert(m.At(x, y)).(color.Gray))
 		}
 	}
 	return gray
