@@ -40,9 +40,6 @@ func Basic() {
 	// Take the 2D Fourier transform of the image
 	fourier := m.DFT()
 
-	// Ensure the output folder exists
-	os.MkdirAll("./images.out", 0755)
-
 	// Write the amplitude, (brightened) amplitude, phase, and then recombined gray image to disk
 	save(*fourier.AmplitudeImage(), "amp")
 	save(*fourier.BrighterAmplitudeImage(), "logamp")
