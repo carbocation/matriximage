@@ -12,28 +12,13 @@ import (
 	"github.com/mjibson/go-dsp/fft"
 )
 
-// Consists of reals only
 type Image struct {
 	image.Image
 }
 
-func (m Image) FFT() FrequencyImage {
-	fftn := m.fftn()
-
-	fi := FrequencyImage{
-		Amp:    toAmplitudeImage(fftn),
-		Phase:  toPhaseImage(fftn),
-		matrix: fftn,
-	}
-
-	return fi
+func (m Image) DFT() FourierImage {
+	return FourierImage{Matrix: m.fftn()}
 }
-
-/*
-func (m Image) IFFT() *dsputils.Matrix {
-
-}
-*/
 
 // Work with gray for now
 // Returns a matrix with values scaled from 0.0 - 1.0
@@ -79,7 +64,7 @@ func FromFile(filename string) (*Image, error) {
 
 	grayImage := imageToGray(src)
 
-	return &Image{grayImage}, nil
+	return &Image{Image: grayImage}, nil
 }
 
 func imageToGray(m image.Image) *image.Gray {
