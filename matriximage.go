@@ -65,12 +65,12 @@ func FromFile(filename string) (*Image, error) {
 		return nil, err
 	}
 
-	grayImage := imageToGray(src)
+	grayImage := ImageToGray(src)
 
 	return &Image{Image: grayImage}, nil
 }
 
-func imageToGray(m image.Image) *image.Gray16 {
+func ImageToGray(m image.Image) *image.Gray16 {
 	b := m.Bounds()
 	gray := image.NewGray16(b)
 
