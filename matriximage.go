@@ -29,6 +29,12 @@ func (m Image) FFT() FrequencyImage {
 	return fi
 }
 
+/*
+func (m Image) IFFT() *dsputils.Matrix {
+
+}
+*/
+
 // Work with gray for now
 // Returns a matrix with values scaled from 0.0 - 1.0
 func (m Image) toGrayMatrix() *dsputils.Matrix {

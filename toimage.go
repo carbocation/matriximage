@@ -11,14 +11,22 @@ import (
 
 const (
 	Real = iota
-	Imaginary
+	RealFromDFT
 	Amplitude
 	LogAmplitude
 	Phase
 )
 
-// Data is lost when using this on the FFT output because
+// Several things to note:
+//
+// 1. Data is lost when using this on the FFT output because
 // there are values outside the range of UINT8
+//
+// 2. Amplitude, LogAmplitude, and Phase all imply that the
+// signal being plotted is a result of a DFT operation. In
+// that case, we shift over by X/2 and down by Y/2; i.e.,
+// we aim to recenter the DFT so the star graph is centered.
+// This means that these signals have to be un-shifted.
 func toImage(matrix *dsputils.Matrix, whichPart int) *Image {
 	vals := matrix.To2D()
 	dims := matrix.Dimensions()
@@ -27,21 +35,27 @@ func toImage(matrix *dsputils.Matrix, whichPart int) *Image {
 
 	for y := range vals {
 		for x := range vals[y] {
+			shiftedY, shiftedX := (y+dims[0]/2)%dims[0], (x+dims[1]/2)%dims[1]
+
 			var part float64
 			if whichPart == Real {
 				part = real(vals[y][x])
-			} else if whichPart == Imaginary {
-				part = imag(vals[y][x])
+			} else if whichPart == RealFromDFT {
+				// Re-shift so we get back the original coordinates
+				part = real(vals[shiftedY][shiftedX])
 			} else if whichPart == Amplitude {
-				part = cmplx.Abs(vals[(y+dims[0]/2)%dims[0]][(x+dims[1]/2)%dims[1]]) / float64(dims[0]*dims[1])
+				// Shift to get centered coordinates
+				part = cmplx.Abs(vals[shiftedY][shiftedX]) / float64(dims[0]*dims[1])
 
 				//part += math.MaxUint8 / 2
 			} else if whichPart == LogAmplitude {
-				part = math.Log(cmplx.Abs(vals[(y+dims[0]/2)%dims[0]][(x+dims[1]/2)%dims[1]]) / float64(dims[0]*dims[1]))
+				// Shift to get centered coordinates
+				part = math.Log(cmplx.Abs(vals[shiftedY][shiftedX]) / float64(dims[0]*dims[1]))
 			} else if whichPart == Phase {
-				part = cmplx.Phase(vals[(y+dims[0]/2)%dims[0]][(x+dims[1]/2)%dims[1]]) //* 1.0 / math.Pi //* float64(dims[1]*dims[0])
+				// Shift to get centered coordinates
+				part = cmplx.Phase(vals[shiftedY][shiftedX]) //* 1.0 / math.Pi //* float64(dims[1]*dims[0])
 
-				part += math.MaxUint8 / 2
+				//part += math.MaxUint8 / 2
 			}
 
 			if part > float64(math.MaxUint8) {
@@ -71,8 +85,8 @@ func toRealImage(matrix *dsputils.Matrix) *Image {
 	return toImage(matrix, Real)
 }
 
-func toImaginaryImage(matrix *dsputils.Matrix) *Image {
-	return toImage(matrix, Imaginary)
+func toRealFromDFTImage(matrix *dsputils.Matrix) *Image {
+	return toImage(matrix, RealFromDFT)
 }
 
 func toAmplitudeImage(matrix *dsputils.Matrix) *Image {
