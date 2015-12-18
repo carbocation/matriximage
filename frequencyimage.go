@@ -20,6 +20,9 @@ func (f FourierImage) ApplyImageMask(img *Image) (*FourierImage, error) {
 	return f.ApplyMatrixMask(mask)
 }
 
+// ApplyMatrixMask applies a mask to the fourier matrix. It expects the mask to
+// be of the same dimensions as the fourier matrix, and to contain real values
+// ranging from [0...1]. Any imaginary component is ignored.
 func (f FourierImage) ApplyMatrixMask(mask *dsputils.Matrix) (*FourierImage, error) {
 	dims := f.Dimensions()
 	maskDims := mask.Dimensions()
@@ -45,9 +48,8 @@ func (f FourierImage) ApplyMatrixMask(mask *dsputils.Matrix) (*FourierImage, err
 			v := f.Value([]int{y, x})
 			maskV := mask.Value([]int{shiftedY, shiftedX})
 
-			// Multiply the value at this pixel by a factor from 0-1, depending on
-			// the mask's amplitude compared to the max possible amplitude
-			product := v * complex((real(maskV)/MaxUint), 0)
+			//product := v * complex((real(maskV)/MaxUint), 0)
+			product := complex(real(maskV), 0) * v
 
 			m.SetValue(product, []int{y, x})
 		}
