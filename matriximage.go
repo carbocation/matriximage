@@ -26,8 +26,16 @@ func (m Image) DFT() FourierImage {
 // Work with gray for now
 // Returns a matrix without rescaling values
 func (m Image) ToGrayMatrix() *dsputils.Matrix {
+	var img *image.Gray16
+	switch t := m.Image.(type) {
+	case *image.Gray16:
+		img = t
+	default:
+		img = ImageToGray(m)
+	}
+
 	// Generate 0-based dimensions
-	min, max := m.Bounds().Min, m.Bounds().Max
+	min, max := img.Bounds().Min, img.Bounds().Max
 	lenY, lenX := max.Y-min.Y, max.X-min.X
 
 	matrix := dsputils.MakeEmptyMatrix([]int{lenY, lenX})
@@ -37,7 +45,7 @@ func (m Image) ToGrayMatrix() *dsputils.Matrix {
 	for i := 0; i < lenX; i++ {
 		for j := 0; j < lenY; j++ {
 
-			v := scale * float64(m.Image.(*image.Gray16).Gray16At(i+min.X, j+min.Y).Y)
+			v := scale * float64(img.Gray16At(i+min.X, j+min.Y).Y)
 
 			matrix.SetValue(complex(v, 0), []int{j, i})
 		}
